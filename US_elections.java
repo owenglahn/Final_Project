@@ -36,6 +36,7 @@ public class US_elections {
 				votesNeeded -= votesNeededBS[i];
 			}
 		}
+		System.out.println(votesNeeded);
 		clean(num_states, bidenDels, votesNeeded, delegates, votesNeededBS);
 		return votesNeeded;
 	}
@@ -84,6 +85,8 @@ public class US_elections {
 			totalDels += delegates[i];
 		}
 		int threshHold = totalDels/2; // dels needed to win
+		System.out.println(threshHold);
+		System.out.println(bidenDels);
 		if (bidenDels == threshHold + 1) return ; // save time
 		for ( int i = 0 ; i < num_states ; i++ )
 		{
