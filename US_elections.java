@@ -36,6 +36,7 @@ public class US_elections {
 				votesNeeded -= votesNeededBS[i];
 			}
 		}
+		clean(num_states, bidenDels, votesNeeded, delegates, votesNeededBS);
 		return votesNeeded;
 	}
 
@@ -70,6 +71,28 @@ public class US_elections {
 			}
 		}
 		return votesNeededBS;
+	}
+	
+	/*
+	 * Helper method to remove states unnecessary to winning from calculation.
+	 */
+	public static void clean(int num_states, int bidenDels, int votesNeeded, int[] delegates, int[] votesNeededBS)
+	{
+		int totalDels = 0;
+		for ( int i = 0 ; i < num_states ; i++ )
+		{
+			totalDels += delegates[i];
+		}
+		int threshHold = totalDels/2; // dels needed to win
+		if (bidenDels == threshHold + 1) return ; // save time
+		for ( int i = 0 ; i < num_states ; i++ )
+		{
+			if (bidenDels - delegates[i] > threshHold && votesNeededBS[i] > 0)
+			{
+				bidenDels -= delegates[i];
+				votesNeeded -= votesNeededBS[i];
+			}
+		}
 	}
 
 	public static void main(String[] args) {
