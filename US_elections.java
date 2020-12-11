@@ -2,14 +2,6 @@ import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-/*
- * Conditions to check:
- * - Either of two states could go to trump and biden would still win, but not both
- * - no votes have been cast yet (currently passes test)
- * 
- * Find more consistent algorithm, don't want to have to check every edge case with a conditional
- */
-
 public class US_elections {
 
 	public static int solution(int num_states, int[] delegates, int[] votes_Biden, int[] votes_Trump, int[] votes_Undecided) {
@@ -27,27 +19,12 @@ public class US_elections {
 		}
 		if (bidenDels < trumpDels)
 			return -1;
-		for ( int i = 0 ; i < num_states ; i++ ) // eliminates states not need to win
-		{
-			if ( bidenDels - trumpDels > 2 * delegates[i] && votesNeededBS[i] > 0 )
-			{
-				bidenDels -= delegates[i];
-				trumpDels += delegates[i];
-				votesNeeded -= votesNeededBS[i];
-			}
-		}
-		System.out.println(votesNeeded);
-		clean(num_states, bidenDels, votesNeeded, delegates, votesNeededBS);
+		votesNeeded = clean(num_states, bidenDels, votesNeeded, delegates, votesNeededBS);
 		return votesNeeded;
 	}
 
 	/*
 	 * Helper to get votes needed by state
-	 * 
-	 * Maybe more efficient to combine delegates and votes needed per state using
-	 * hashmap
-	 * 
-	 * Fix condition where Biden is guaranteed to win
 	 */
 	private static int[] getVotesNeededBS(int num_states, int[] votes_Biden, int[] votes_Trump, int[] votes_Undecided) {
 		int[] votesNeededBS = new int[num_states]; // votes needed for state i, -1 if it cannot be won
@@ -77,25 +54,27 @@ public class US_elections {
 	/*
 	 * Helper method to remove states unnecessary to winning from calculation.
 	 */
-	public static void clean(int num_states, int bidenDels, int votesNeeded, int[] delegates, int[] votesNeededBS)
+	public static int clean(int num_states, int bidenDels, int votesNeeded, int[] delegates, int[] votesNeededBS)
 	{
 		int totalDels = 0;
+		List<State> winnable = new ArrayList<>();
 		for ( int i = 0 ; i < num_states ; i++ )
 		{
+			if (votesNeededBS[i] > 0) winnable.add(new State(delegates[i], votesNeededBS[i]));
 			totalDels += delegates[i];
 		}
+		Collections.sort(winnable);
 		int threshHold = totalDels/2; // dels needed to win
-		System.out.println(threshHold);
-		System.out.println(bidenDels);
-		if (bidenDels == threshHold + 1) return ; // save time
-		for ( int i = 0 ; i < num_states ; i++ )
+		if (bidenDels == threshHold + 1) return votesNeeded; // save time
+		for (State state : winnable) 
 		{
-			if (bidenDels - delegates[i] > threshHold && votesNeededBS[i] > 0)
+			if (bidenDels - state.delegates > threshHold)
 			{
-				bidenDels -= delegates[i];
-				votesNeeded -= votesNeededBS[i];
+				votesNeeded -= state.votesNeeded;
+				bidenDels -= state.delegates;
 			}
 		}
+		return votesNeeded;
 	}
 
 	public static void main(String[] args) {
@@ -122,5 +101,37 @@ public class US_elections {
 			e.printStackTrace();
 		}
 	}
+}
 
+/*
+ * Helper class representing a state.
+ * 
+ * Used in clean() method to be able to sort states in order of the votes needed to win them.
+ */
+class State implements Comparable<State>
+{
+	int delegates; // delegates awarded by that state
+	int votesNeeded; // votes needed by biden to win state
+
+	State(int pDels, int pVotes)
+	{
+		delegates = pDels;
+		votesNeeded = pVotes;
+	}
+	
+	/*
+	 * Sort in order of descending votes needed
+	 */
+	@Override
+	public int compareTo(State o) {
+		return o.votesNeeded - votesNeeded;
+	}
+	
+	/*
+	 * Used for testing
+	 */
+	public String toString()
+	{
+		return "(" + delegates + ":" + votesNeeded + ")";
+	}
 }
