@@ -63,17 +63,24 @@ public class US_elections {
 			if (votesNeededBS[i] > 0) winnable.add(new State(delegates[i], votesNeededBS[i]));
 			totalDels += delegates[i];
 		}
-		Collections.sort(winnable);
+//		Collections.sort(winnable);
 		int threshHold = totalDels/2; // dels needed to win
 		if (bidenDels == threshHold + 1) return votesNeeded; // save time
-		for (State state : winnable) 
+//		for (State state : winnable) 
+//		{
+//			if (bidenDels - state.delegates > threshHold)
+//			{
+//				votesNeeded -= state.votesNeeded;
+//				bidenDels -= state.delegates;
+//			}
+//		}
+		int[] M = new int[num_states];
+		if (votesNeededBS[0] != -1 && votesNeeded - votesNeededBS[0] >= threshHold) M[0] = votesNeeded - votesNeededBS[0];
+		else M[0] = votesNeeded;
+		for (int i = 1; i < num_states; i++)
 		{
-			if (bidenDels - state.delegates > threshHold)
-			{
-				votesNeeded -= state.votesNeeded;
-				bidenDels -= state.delegates;
-			}
 		}
+		
 		return votesNeeded;
 	}
 
