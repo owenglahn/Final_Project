@@ -68,7 +68,10 @@ public class US_elections {
 		
 		/* 
 		 * Usage of the knapsack problem where the number of delegates is the weight 
-		 * and the number of votes needed to win is the value. 
+		 * and the number of votes needed to win is the value. This calculates the
+		 * maximum number of votes that can be removed from Biden's tally while still
+		 * allowing him to win. Returns the total possible votes needed minus the 
+		 * maximum that can be removed.
 		 */
 		int[][] M = new int[num_states + 1][capacity + 1];
 		for (int w = 0 ; w <= capacity; w++)
@@ -84,11 +87,7 @@ public class US_elections {
 				else M[i][w] = Math.max(M[i-1][w], votesNeededBS[i-1] + M[i - 1][w - delegates[i-1]]);
 			}
 		}
-		for (int i = 0 ; i < M.length; i++)
-		{
-			System.out.println(Arrays.toString(M[i]));
-		}
-		return M[num_states][bidenDels - threshHold];
+		return votesNeeded - M[num_states][bidenDels - threshHold];
 	}
 
 	public static void main(String[] args) {
